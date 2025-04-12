@@ -66,7 +66,7 @@
 
 /* Login button styling */
 .login-button {
-    background-color: #3498db;
+    background-color: #000000;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -78,7 +78,7 @@
 }
 
 .login-button:hover {
-    background-color: #2980b9;
+    background-color: #e67e22;
 }
 
 /* Responsive design */

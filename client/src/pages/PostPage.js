@@ -1,85 +1,66 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import './styles.css';
 import API_BASE_URL from '../config';
 
-// Reuse the SkeletonLoader component from Homepage
-const SkeletonLoader = () => (
+// Skeleton Loader Component for the Post Page
+const PostSkeletonLoader = () => (
     <div className="skeleton-container">
-        <div className="skeleton-card-grid">
-            {Array(6).fill().map((_, i) => (
-                <div key={i} className="skeleton-card" />
-            ))}
-        </div>
+        <div className="skeleton-post-header" />
+        <div className="skeleton-post-image" />
+        <div className="skeleton-post-content" />
     </div>
 );
 
-// Reuse the PostCard component from Homepage
-const PostCard = ({ post }) => {
-    console.log('PostCard postId (Articles):', post.postId); // Debug log
-    return (
-        <article className="card">
-            <div className="card-image">
-                <img src={post.imageUrl} alt={post.title} loading="lazy" />
-            </div>
-            <div className="card-content">
-                <h3 className="card-title">{post.title}</h3>
-                <p className="card-text">{post.content.substring(0, 80)}...</p>
-                <div className="card-meta">
-                    <time dateTime={post.createdAt}>
-                        {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </time>
-                    <Link to={`/post/${post.postId}`} className="read-more">Read More</Link>
-                </div>
-            </div>
-        </article>
-    );
-};
-
-const Articles = () => {
-    const [posts, setPosts] = useState([]);
+const PostPage = () => {
+    const { postId } = useParams(); // Get the postId from the URL (e.g., f5540f85-f96e-469b-99b4-5bd70858f17d)
+    const [post, setPost] = useState(null);
     const [socialMediaLinks, setSocialMediaLinks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchPost = async () => {
             try {
                 const token = localStorage.getItem('jwt');
                 const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-                // Fetch posts from the API
-                const postsResponse = await axios.get(`${API_BASE_URL}/api/Post/GetAllPosts`, { headers });
+                // Use the correct endpoint with path parameter
+                const response = await axios.get(`${API_BASE_URL}/api/Post/GetPostById/${postId}`, { headers });
 
-                // Filter for published posts and sort by createdAt (most recent first)
-                const publishedPosts = postsResponse.data
-                    .filter(post => post.isPublished)
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                setPosts(publishedPosts);
+                console.log('API Response:', response.data); // Log the response for debugging
 
-                // Set social media links (same as Homepage)
+                if (response.data && response.data.isPublished) {
+                    setPost(response.data);
+                } else {
+                    setError('Post not found or unpublished.');
+                }
+
+                // Set social media links (same as Homepage and Articles)
                 setSocialMediaLinks([
                     { platform: 'Instagram', url: 'https://instagram.com', icon: '/instagram-fill-10.svg', footerIcon: '/instagram-fill-11.svg' },
                     { platform: 'Twitter', url: 'https://twitter.com', icon: '/twitter-fill-10.svg', footerIcon: '/vector0.svg' },
                     { platform: 'LinkedIn', url: 'https://linkedin.com', icon: '/linkedin-box-fill-10.svg', footerIcon: '/linkedin-box-fill-11.svg' },
                 ]);
             } catch (error) {
-                console.error('Error fetching articles:', error);
-                setError('Failed to load articles. Please try again.');
+                console.error('Error fetching post:', error);
+                console.error('Error response:', error.response); // Log the error response for debugging
+                setError('Failed to load the article. Please try again.');
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchData();
-    }, []);
+        fetchPost();
+    }, [postId]);
 
-    if (isLoading) return <SkeletonLoader />;
+    if (isLoading) return <PostSkeletonLoader />;
     if (error) return <div className="container error-message" role="alert">{error}</div>;
+    if (!post) return <div className="container error-message" role="alert">Post not found.</div>;
 
     return (
         <div className="container">
-            {/* Navigation (same as Homepage) */}
+            {/* Navigation (same as Homepage and Articles) */}
             <nav className="navigation">
                 <div className="logo">MyBlogi</div>
                 <div className="search-bar">
@@ -88,7 +69,7 @@ const Articles = () => {
                 </div>
                 <div className="nav-links">
                     <Link to="/" className="nav-item">Home</Link>
-                    <Link to="/articles" className="nav-item active">Articles</Link>
+                    <Link to="/articles" className="nav-item">Articles</Link>
                     <div className="social-icons">
                         {socialMediaLinks.map(link => (
                             <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer">
@@ -100,20 +81,29 @@ const Articles = () => {
             </nav>
 
             {/* Main Content */}
-            <main role="main">
-                <h1 className="articles-title">All Articles</h1>
-                {posts.length > 0 ? (
-                    <section className="card-grid" aria-label="All articles">
-                        {posts.map(post => (
-                            <PostCard key={post.postId} post={post} />
-                        ))}
-                    </section>
-                ) : (
-                    <p className="no-articles">No articles found.</p>
-                )}
+            <main role="main" className="post-page">
+                <article className="post-article">
+                    <header className="post-header">
+                        <h1 className="post-title">{post.title}</h1>
+                        <div className="post-meta">
+                            <time dateTime={post.createdAt}>
+                                {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                            </time>
+                        </div>
+                    </header>
+                    <div className="post-image">
+                        <img src={post.imageUrl} alt={post.title} loading="lazy" />
+                    </div>
+                    <div className="post-content">
+                        <p>{post.content}</p>
+                    </div>
+                    <div className="post-actions">
+                        <Link to="/articles" className="back-to-articles">Back to Articles</Link>
+                    </div>
+                </article>
             </main>
 
-            {/* Footer (same as Homepage) */}
+            {/* Footer (same as Homepage and Articles) */}
             <footer className="footer">
                 <div className="footer-info">
                     <span className="footer-logo">MyBlogi</span>
@@ -131,4 +121,4 @@ const Articles = () => {
     );
 };
 
-export default Articles;
+export default PostPage;

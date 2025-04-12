@@ -107,43 +107,49 @@ const BannerAd = memo(({ ad }) => (
 ));
 
 // Post Card Component
-const PostCard = memo(({ post }) => (
-    <article className="card">
-        <div className="card-image">
-            <img src={post.imageUrl} alt={post.title} loading="lazy" />
-        </div>
-        <div className="card-content">
-            <h3 className="card-title">{post.title}</h3>
-            <p className="card-text">{post.content.substring(0, 80)}...</p>
-            <div className="card-meta">
-                <time dateTime={post.createdAt}>
-                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </time>
-                <a href={`/post/${post.postId}`} className="read-more">Read More</a>
+const PostCard = memo(({ post }) => {
+    console.log('PostCard postId:', post.postId); // Debug log
+    return (
+        <article className="card">
+            <div className="card-image">
+                <img src={post.imageUrl} alt={post.title} loading="lazy" />
             </div>
-        </div>
-    </article>
-));
+            <div className="card-content">
+                <h3 className="card-title">{post.title}</h3>
+                <p className="card-text">{post.content.substring(0, 80)}...</p>
+                <div className="card-meta">
+                    <time dateTime={post.createdAt}>
+                        {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </time>
+                    <Link to={`/post/${post.postId}`} className="read-more">Read More</Link>
+                </div>
+            </div>
+        </article>
+    );
+});
 
 // Featured Post Component
-const FeaturedPost = memo(({ post }) => (
-    <section className="highlight-section" aria-label="Featured Article">
-        <div className="highlight-image">
-            <img src={post.imageUrl} alt={post.title} loading="lazy" />
-        </div>
-        <div className="highlight-content">
-            <span className="highlight-label">Featured Article</span>
-            <h2 className="highlight-title">{post.title}</h2>
-            <p className="highlight-text">{post.content.substring(0, 120)}...</p>
-            <div className="highlight-meta">
-                <time dateTime={post.createdAt}>
-                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </time>
-                <a href={`/post/${post.postId}`} className="highlight-cta">Read Full Story</a>
+const FeaturedPost = memo(({ post }) => {
+    console.log('FeaturedPost postId:', post.postId); // Debug log
+    return (
+        <section className="highlight-section" aria-label="Featured Article">
+            <div className="highlight-image">
+                <img src={post.imageUrl} alt={post.title} loading="lazy" />
             </div>
-        </div>
-    </section>
-));
+            <div className="highlight-content">
+                <span className="highlight-label">Featured Article</span>
+                <h2 className="highlight-title">{post.title}</h2>
+                <p className="highlight-text">{post.content.substring(0, 120)}...</p>
+                <div className="highlight-meta">
+                    <time dateTime={post.createdAt}>
+                        {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </time>
+                    <Link to={`/post/${post.postId}`} className="highlight-cta">Read Full Story</Link>
+                </div>
+            </div>
+        </section>
+    );
+});
 
 // Main Homepage Component
 const Homepage = () => {
