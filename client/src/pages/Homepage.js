@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import axios from 'axios';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -6,6 +6,144 @@ import 'slick-carousel/slick/slick-theme.css';
 import './styles.css';
 import API_BASE_URL from '../config';
 
+// Skeleton Loader Component
+const SkeletonLoader = () => (
+    <div className="skeleton-container">
+        <div className="skeleton-carousel" />
+        <div className="skeleton-card-grid">
+            {Array(3).fill().map((_, i) => (
+                <div key={i} className="skeleton-card" />
+            ))}
+        </div>
+        <div className="skeleton-featured" />
+    </div>
+);
+
+// Carousel Component
+const Carousel = memo(({ banners }) => {
+    const settings = {
+        dots: true,
+        infinite: true,
+        speed: 600,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 3500,
+        arrows: true,
+        pauseOnHover: true,
+    };
+
+    return (
+        <section className="head-section" aria-label="Featured banners">
+            <Slider {...settings}>
+                {banners.map(banner => (
+                    <div key={banner.carouselId} className="carousel-slide">
+                        <img
+                            src={
+                                banner.imageUrl?.startsWith('http')
+                                    ? banner.imageUrl
+                                    : `${API_BASE_URL}${banner.imageUrl}`
+                            }
+                            alt={banner.title}
+                            className="carousel-background"
+                            loading="lazy"
+                            onError={e => { e.target.src = '/placeholder.jpg'; }}
+                        />
+                        <div className="hero-content">
+                            <h2 className="hero-title">
+                                {banner.title.includes('coffee') ? (
+                                    <>
+                                        {banner.title.split('coffee')[0]} coffee
+                                        <img
+                                            src="/coffee-cup-icon.svg"
+                                            alt="Coffee cup"
+                                            className="coffee-icon"
+                                            aria-hidden="true"
+                                        />
+                                        {banner.title.split('coffee')[1] || ''}
+                                    </>
+                                ) : (
+                                    banner.title
+                                )}
+                            </h2>
+                            <p className="hero-description">{banner.description}</p>
+                        </div>
+                    </div>
+                ))}
+            </Slider>
+        </section>
+    );
+});
+
+// Banner Ad Component
+const BannerAd = memo(({ ad }) => (
+    <section className="card-latest" aria-label="Latest promotion">
+        <div className="card-latest-content">
+            <h2 className="card-latest-title">{ad.title}</h2>
+            <p className="card-latest-text">{ad.description}</p>
+            <div className="card-meta">
+                <time dateTime={ad.startDate}>
+                    {new Date(ad.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </time>
+                <a
+                    href={ad.redirectUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="read-more"
+                >
+                    Learn More
+                </a>
+            </div>
+        </div>
+        <img
+            src={ad.imageUrl}
+            alt={ad.title}
+            className="card-latest-image"
+            loading="lazy"
+        />
+    </section>
+));
+
+// Post Card Component
+const PostCard = memo(({ post }) => (
+    <article className="card">
+        <div className="card-image">
+            <img src={post.imageUrl} alt={post.title} loading="lazy" />
+        </div>
+        <div className="card-content">
+            <h3 className="card-title">{post.title}</h3>
+            <p className="card-text">{post.content.substring(0, 80)}...</p>
+            <div className="card-meta">
+                <time dateTime={post.createdAt}>
+                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </time>
+                <a href={`/post/${post.postId}`} className="read-more">Read More</a>
+            </div>
+        </div>
+    </article>
+));
+
+// Enhanced Featured Post Component
+const FeaturedPost = memo(({ post }) => (
+    <section className="highlight-section" aria-label="Featured article">
+        <div className="highlight-image">
+            <img src={post.imageUrl} alt={post.title} loading="lazy" />
+        </div>
+        <div className="highlight-content">
+            <span className="highlight-label">Featured Article</span>
+            <h2 className="highlight-title">{post.title}</h2>
+            <p className="highlight-text">{post.content.substring(0, 120)}...</p>
+            <div className="highlight-meta">
+                <time dateTime={post.createdAt}>
+                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </time>
+                <a href={`/post/${post.postId}`} className="highlight-cta">Read Full Story</a>
+            </div>
+        </div>
+    </section>
+));
+
+// Main Homepage Component
 const Homepage = () => {
     const [carouselBanners, setCarouselBanners] = useState([]);
     const [posts, setPosts] = useState([]);
@@ -13,10 +151,10 @@ const Homepage = () => {
     const [bannerAds, setBannerAds] = useState([]);
     const [socialMediaLinks, setSocialMediaLinks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
-            setIsLoading(true);
             try {
                 const token = localStorage.getItem('jwt');
                 const headers = token ? { Authorization: `Bearer ${token}` } : {};
@@ -27,27 +165,27 @@ const Homepage = () => {
                     axios.get(`${API_BASE_URL}/api/BannerAd/GetAllBannerAds`, { headers }),
                 ]);
 
-                const activeBanners = carouselResponse.data
-                    .filter(banner => banner.isActive)
-                    .sort((a, b) => a.displayOrder - b.displayOrder);
-                setCarouselBanners(activeBanners);
+                setCarouselBanners(
+                    carouselResponse.data
+                        .filter(banner => banner.isActive)
+                        .sort((a, b) => a.displayOrder - b.displayOrder)
+                );
 
                 const publishedPosts = postsResponse.data
                     .filter(post => post.isPublished)
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-                const gridPosts = publishedPosts.slice(0, 3);
-                setPosts(gridPosts);
-
+                setPosts(publishedPosts.slice(0, 3));
                 setFeaturedPost(publishedPosts[0] || null);
 
                 const currentDate = new Date();
-                const activeBannerAds = bannerAdsResponse.data.filter(ad =>
-                    ad.isActive &&
-                    new Date(ad.startDate) <= currentDate &&
-                    new Date(ad.endDate) >= currentDate
+                setBannerAds(
+                    bannerAdsResponse.data.filter(
+                        ad =>
+                            ad.isActive &&
+                            new Date(ad.startDate) <= currentDate &&
+                            new Date(ad.endDate) >= currentDate
+                    )
                 );
-                setBannerAds(activeBannerAds);
 
                 setSocialMediaLinks([
                     { platform: 'Instagram', url: 'https://instagram.com', icon: '/instagram-fill-10.svg', footerIcon: '/instagram-fill-11.svg' },
@@ -56,11 +194,7 @@ const Homepage = () => {
                 ]);
             } catch (error) {
                 console.error('Error fetching data:', error);
-                setCarouselBanners([]);
-                setPosts([]);
-                setFeaturedPost(null);
-                setBannerAds([]);
-                setSocialMediaLinks([]);
+                setError('Failed to load content. Please try again.');
             } finally {
                 setIsLoading(false);
             }
@@ -68,20 +202,8 @@ const Homepage = () => {
         fetchData();
     }, []);
 
-    const carouselSettings = {
-        dots: true,
-        infinite: true,
-        speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 3000,
-        arrows: true,
-    };
-
-    if (isLoading) {
-        return <div className="container">Loading...</div>;
-    }
+    if (isLoading) return <SkeletonLoader />;
+    if (error) return <div className="container error-message" role="alert">{error}</div>;
 
     return (
         <div className="container">
@@ -103,124 +225,24 @@ const Homepage = () => {
                     </div>
                 </div>
             </nav>
-
-            {carouselBanners.length > 0 && (
-                <section className="head-section">
-                    <Slider {...carouselSettings}>
-                        {carouselBanners.map(banner => (
-                            <div key={banner.carouselId} className="carousel-slide">
-                                <img
-                                    src={
-                                        banner.imageUrl && banner.imageUrl.startsWith('http')
-                                            ? banner.imageUrl
-                                            : banner.imageUrl
-                                                ? `${API_BASE_URL}${banner.imageUrl}`
-                                                : 'https://via.placeholder.com/1200x400'
-                                    }
-                                    alt={banner.title}
-                                    className="carousel-background"
-                                    onError={(e) => {
-                                        e.target.src = 'https://via.placeholder.com/1200x400'; // Fallback on error
-                                    }}
-                                />
-                                <div className="hero-content">
-                                    <h1 className="hero-title">
-                                        {banner.title.includes('coffee') ? (
-                                            <>
-                                                {banner.title.split('coffee')[0]} coffee
-                                                <img
-                                                    src="/coffee-cup-icon.svg"
-                                                    alt="Coffee cup"
-                                                    className="coffee-icon"
-                                                />
-                                                {banner.title.split('coffee')[1] || ''}
-                                            </>
-                                        ) : (
-                                            banner.title
-                                        )}
-                                    </h1>
-                                    <p className="hero-description">
-                                        {banner.description.split('<br>').map((line, index) => (
-                                            <React.Fragment key={index}>
-                                                {line}
-                                                {index < banner.description.split('<br>').length - 1 && <br />}
-                                            </React.Fragment>
-                                        ))}
-                                    </p>
-                                </div>
-                            </div>
+            <main role="main">
+                {carouselBanners.length > 0 && <Carousel banners={carouselBanners} />}
+                {bannerAds.length > 0 && <BannerAd ad={bannerAds[0]} />}
+                {posts.length > 0 && (
+                    <section className="card-grid" aria-label="Recent articles">
+                        {posts.map(post => (
+                            <PostCard key={post.postId} post={post} />
                         ))}
-                    </Slider>
-                </section>
-            )}
-
-            {bannerAds.length > 0 && (
-                <section className="card-latest">
-                    <div className="card-latest-content">
-                        <h2 className="card-latest-title">{bannerAds[0].title}</h2>
-                        <p className="card-latest-text">{bannerAds[0].description}</p>
-                        <div className="card-meta">
-                            <div className="date">
-                                {new Date(bannerAds[0].startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                            </div>
-                            <a href={bannerAds[0].redirectUrl} target="_blank" rel="noopener noreferrer" className="read-more">
-                                Read more
-                            </a>
-                        </div>
-                    </div>
-                    <div className="card-latest-image">
-                        <img src={bannerAds[0].imageUrl} alt={bannerAds[0].title} />
-                    </div>
-                </section>
-            )}
-
-            {posts.length > 0 && (
-                <section className="card-grid">
-                    {posts.map(post => (
-                        <div className="card" key={post.postId}>
-                            <div className="card-image">
-                                <img src={post.imageUrl} alt={post.title} />
-                            </div>
-                            <div className="card-content">
-                                <h3 className="card-title">{post.title}</h3>
-                                <p className="card-text">{post.content.substring(0, 100)}...</p>
-                                <div className="card-meta">
-                                    <div className="date">
-                                        {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </div>
-                                    <a href={`/post/${post.postId}`} className="read-more">Read more</a>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </section>
-            )}
-
-            {featuredPost && (
-                <section className="highlight-section">
-                    <div className="highlight-content">
-                        <h2 className="highlight-title">{featuredPost.title}</h2>
-                        <p className="highlight-text">{featuredPost.content.substring(0, 150)}...</p>
-                        <div className="highlight-meta">
-                            <div className="highlight-date">
-                                {new Date(featuredPost.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            </div>
-                            <a href={`/post/${featuredPost.postId}`} className="read-more">Read more</a>
-                        </div>
-                    </div>
-                    <div className="highlight-image">
-                        <img src={featuredPost.imageUrl} alt={featuredPost.title} />
-                    </div>
-                </section>
-            )}
-
-            <div className="see-more-container">
-                <div className="see-more-button">
-                    See more
-                    <img src="/arrow-down-circle-fill-10.svg" alt="Arrow down" />
+                    </section>
+                )}
+                {featuredPost && <FeaturedPost post={featuredPost} />}
+                <div className="see-more-container">
+                    <button className="see-more-button" aria-label="Load more content">
+                        See more
+                        <img src="/arrow-down-circle-fill-10.svg" alt="" aria-hidden="true" />
+                    </button>
                 </div>
-            </div>
-
+            </main>
             <footer className="footer">
                 <div className="footer-info">
                     <span className="footer-logo">MyBlogi</span>
