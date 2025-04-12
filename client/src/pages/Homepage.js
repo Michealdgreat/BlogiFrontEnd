@@ -1,132 +1,225 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './styles.css'; // Reuse your existing styles
-import API_BASE_URL from '../config'; // Import the API base URL from your config
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import './styles.css';
+import API_BASE_URL from '../config';
 
 const Homepage = () => {
     const [carouselBanners, setCarouselBanners] = useState([]);
     const [posts, setPosts] = useState([]);
-    const [latestPost, setLatestPost] = useState(null);
-    const [highlightPost, setHighlightPost] = useState(null);
+    const [featuredPost, setFeaturedPost] = useState(null);
+    const [bannerAds, setBannerAds] = useState([]);
+    const [socialMediaLinks, setSocialMediaLinks] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true);
             try {
                 const token = localStorage.getItem('jwt');
                 const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-                const [carouselResponse, postsResponse] = await Promise.all([
+                const [carouselResponse, postsResponse, bannerAdsResponse] = await Promise.all([
                     axios.get(`${API_BASE_URL}/api/CarouselBanner/GetAllCarouselBanners`, { headers }),
                     axios.get(`${API_BASE_URL}/api/Post/GetAllPosts`, { headers }),
+                    axios.get(`${API_BASE_URL}/api/BannerAd/GetAllBannerAds`, { headers }),
                 ]);
 
-                // Filter active carousel banners and sort by displayOrder
                 const activeBanners = carouselResponse.data
                     .filter(banner => banner.isActive)
                     .sort((a, b) => a.displayOrder - b.displayOrder);
                 setCarouselBanners(activeBanners);
 
-                // Filter published posts and sort by creation date (assuming a createdAt field)
                 const publishedPosts = postsResponse.data
                     .filter(post => post.isPublished)
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by most recent
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                // Take the top 3 posts for the card grid
-                const topPosts = publishedPosts.slice(0, 3);
-                setPosts(topPosts);
+                const gridPosts = publishedPosts.slice(0, 3);
+                setPosts(gridPosts);
 
-                // Set the latest and highlight posts
-                setLatestPost(topPosts[0] || null);
-                setHighlightPost(topPosts[1] || null);
+                setFeaturedPost(publishedPosts[0] || null);
+
+                const currentDate = new Date();
+                const activeBannerAds = bannerAdsResponse.data.filter(ad =>
+                    ad.isActive &&
+                    new Date(ad.startDate) <= currentDate &&
+                    new Date(ad.endDate) >= currentDate
+                );
+                setBannerAds(activeBannerAds);
+
+                setSocialMediaLinks([
+                    { platform: 'Instagram', url: 'https://instagram.com', icon: '/instagram-fill-10.svg', footerIcon: '/instagram-fill-11.svg' },
+                    { platform: 'Twitter', url: 'https://twitter.com', icon: '/twitter-fill-10.svg', footerIcon: '/vector0.svg' },
+                    { platform: 'LinkedIn', url: 'https://linkedin.com', icon: '/linkedin-box-fill-10.svg', footerIcon: '/linkedin-box-fill-11.svg' },
+                ]);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setCarouselBanners([]);
                 setPosts([]);
-                setLatestPost(null);
-                setHighlightPost(null);
+                setFeaturedPost(null);
+                setBannerAds([]);
+                setSocialMediaLinks([]);
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchData();
     }, []);
 
+    const carouselSettings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        arrows: true,
+    };
+
+    if (isLoading) {
+        return <div className="container">Loading...</div>;
+    }
+
     return (
         <div className="container">
             <nav className="navigation">
                 <div className="logo">MyBlogi</div>
-                <div className="nav-links">
-                    <div className="nav-item">Home</div>
-                    <div className="nav-item">Articles</div>
-                </div>
                 <div className="search-bar">
                     <img src="/search-line-10.svg" alt="Search icon" />
                     <div className="search-text">Search...</div>
                 </div>
-                <div className="social-icons">
-                    <img src="/instagram-fill-10.svg" alt="Instagram" />
-                    <img src="/twitter-fill-10.svg" alt="Twitter" />
-                    <img src="/linkedin-box-fill-10.svg" alt="LinkedIn" />
+                <div className="nav-links">
+                    <div className="nav-item">Home</div>
+                    <div className="nav-item">Articles</div>
+                    <div className="social-icons">
+                        {socialMediaLinks.map(link => (
+                            <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer">
+                                <img src={link.icon} alt={link.platform} />
+                            </a>
+                        ))}
+                    </div>
                 </div>
             </nav>
 
-            <section className="head-section">
-                <div className="hero-content">
-                    {carouselBanners.length > 0 ? (
-                        <>
-                            <h1 className="hero-title">{carouselBanners[0].title}</h1>
-                            <p className="hero-description">{carouselBanners[0].description}</p>
-                        </>
-                    ) : (
-                        <>
-                            <h1 className="hero-title">Make better<br />coffee</h1>
-                            <p className="hero-description">learn how to make the best<br />coffee from anywhere.</p>
-                        </>
-                    )}
-                </div>
-                <div className="hero-image">
-                    <img src="/croods-10.png" alt="Coffee illustration" />
-                </div>
-            </section>
+            {carouselBanners.length > 0 && (
+                <section className="head-section">
+                    <Slider {...carouselSettings}>
+                        {carouselBanners.map(banner => (
+                            <div key={banner.carouselId} className="carousel-slide">
+                                <img
+                                    src={
+                                        banner.imageUrl && banner.imageUrl.startsWith('http')
+                                            ? banner.imageUrl
+                                            : banner.imageUrl
+                                                ? `${API_BASE_URL}${banner.imageUrl}`
+                                                : 'https://via.placeholder.com/1200x400'
+                                    }
+                                    alt={banner.title}
+                                    className="carousel-background"
+                                    onError={(e) => {
+                                        e.target.src = 'https://via.placeholder.com/1200x400'; // Fallback on error
+                                    }}
+                                />
+                                <div className="hero-content">
+                                    <h1 className="hero-title">
+                                        {banner.title.includes('coffee') ? (
+                                            <>
+                                                {banner.title.split('coffee')[0]} coffee
+                                                <img
+                                                    src="/coffee-cup-icon.svg"
+                                                    alt="Coffee cup"
+                                                    className="coffee-icon"
+                                                />
+                                                {banner.title.split('coffee')[1] || ''}
+                                            </>
+                                        ) : (
+                                            banner.title
+                                        )}
+                                    </h1>
+                                    <p className="hero-description">
+                                        {banner.description.split('<br>').map((line, index) => (
+                                            <React.Fragment key={index}>
+                                                {line}
+                                                {index < banner.description.split('<br>').length - 1 && <br />}
+                                            </React.Fragment>
+                                        ))}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </Slider>
+                </section>
+            )}
 
-            <section className="latest-card">
-                {latestPost && (
-                    <>
-                        <div className="latest-content">
-                            <h2 className="latest-title">{latestPost.title}</h2>
-                            <p className="latest-description">{latestPost.content.substring(0, 100)}...</p>
-                            <a href={`/post/${latestPost.postId}`} className="read-more">Read more</a>
+            {bannerAds.length > 0 && (
+                <section className="card-latest">
+                    <div className="card-latest-content">
+                        <h2 className="card-latest-title">{bannerAds[0].title}</h2>
+                        <p className="card-latest-text">{bannerAds[0].description}</p>
+                        <div className="card-meta">
+                            <div className="date">
+                                {new Date(bannerAds[0].startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                            <a href={bannerAds[0].redirectUrl} target="_blank" rel="noopener noreferrer" className="read-more">
+                                Read more
+                            </a>
                         </div>
-                        <div className="latest-image">
-                            <img src={latestPost.imageUrl} alt="Latest post" />
-                        </div>
-                    </>
-                )}
-            </section>
-
-            <section className="card-grid">
-                {posts.map(post => (
-                    <div className="card" key={post.postId}>
-                        <img src={post.imageUrl} alt={post.title} className="card-image" />
-                        <h3 className="card-title">{post.title}</h3>
-                        <p className="card-description">{post.content.substring(0, 50)}...</p>
-                        <a href={`/post/${post.postId}`} className="read-more">Read more</a>
                     </div>
-                ))}
-            </section>
+                    <div className="card-latest-image">
+                        <img src={bannerAds[0].imageUrl} alt={bannerAds[0].title} />
+                    </div>
+                </section>
+            )}
 
-            <section className="highlight-section">
-                {highlightPost && (
-                    <>
-                        <div className="highlight-image">
-                            <img src={highlightPost.imageUrl} alt="Highlight post" />
+            {posts.length > 0 && (
+                <section className="card-grid">
+                    {posts.map(post => (
+                        <div className="card" key={post.postId}>
+                            <div className="card-image">
+                                <img src={post.imageUrl} alt={post.title} />
+                            </div>
+                            <div className="card-content">
+                                <h3 className="card-title">{post.title}</h3>
+                                <p className="card-text">{post.content.substring(0, 100)}...</p>
+                                <div className="card-meta">
+                                    <div className="date">
+                                        {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </div>
+                                    <a href={`/post/${post.postId}`} className="read-more">Read more</a>
+                                </div>
+                            </div>
                         </div>
-                        <div className="highlight-content">
-                            <h2 className="highlight-title">{highlightPost.title}</h2>
-                            <p className="highlight-description">{highlightPost.content.substring(0, 100)}...</p>
-                            <a href={`/post/${highlightPost.postId}`} className="read-more">Read more</a>
+                    ))}
+                </section>
+            )}
+
+            {featuredPost && (
+                <section className="highlight-section">
+                    <div className="highlight-content">
+                        <h2 className="highlight-title">{featuredPost.title}</h2>
+                        <p className="highlight-text">{featuredPost.content.substring(0, 150)}...</p>
+                        <div className="highlight-meta">
+                            <div className="highlight-date">
+                                {new Date(featuredPost.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </div>
+                            <a href={`/post/${featuredPost.postId}`} className="read-more">Read more</a>
                         </div>
-                    </>
-                )}
-            </section>
+                    </div>
+                    <div className="highlight-image">
+                        <img src={featuredPost.imageUrl} alt={featuredPost.title} />
+                    </div>
+                </section>
+            )}
+
+            <div className="see-more-container">
+                <div className="see-more-button">
+                    See more
+                    <img src="/arrow-down-circle-fill-10.svg" alt="Arrow down" />
+                </div>
+            </div>
 
             <footer className="footer">
                 <div className="footer-info">
@@ -134,9 +227,11 @@ const Homepage = () => {
                     <span className="copyright">2025 copyright all rights reserved</span>
                 </div>
                 <div className="footer-social">
-                    <img src="/instagram-fill-11.svg" alt="Instagram" />
-                    <img src="/vector0.svg" alt="Twitter" />
-                    <img src="/linkedin-box-fill-11.svg" alt="LinkedIn" />
+                    {socialMediaLinks.map(link => (
+                        <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer">
+                            <img src={link.footerIcon} alt={link.platform} />
+                        </a>
+                    ))}
                 </div>
             </footer>
         </div>
