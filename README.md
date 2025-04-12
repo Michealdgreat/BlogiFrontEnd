@@ -33,6 +33,19 @@ Core libraries and tools include **React Router**, **Axios**, and **React Slick*
 
 ---
 
+## Screenshots
+
+### Homepage Screenshot
+<img src="Documentation/blogiscreenshot01.png" alt="Homepage"/>
+
+### Category Page
+<img src="Documentation/blogiscreenshot02.png" alt="Category"/>
+
+### Admin content management area
+<img src="Documentation/blogiscreenshot03.png" alt="Admin"/>
+
+---
+
 ## Features
 
 - **Homepage**  
@@ -214,13 +227,13 @@ Contributions are welcome! Here's how to contribute:
 3. Commit your changes:
 
    ```bash
-   git commit -m "Add your feature"
+   git commit -m "features"
    ```
 
 4. Push to your branch:
 
    ```bash
-   git push origin feature/your-feature
+   git push origin feature/features
    ```
 
 5. Open a Pull Request with a clear description
@@ -231,8 +244,4 @@ Please follow the existing code style and add comments where necessary.
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
-
----
-
-Let me know if you'd like a version with markdown badges, screenshots, or setup for deployment (e.g., with Netlify or Vercel)!
+This project is licensed under the **MIT License**.
