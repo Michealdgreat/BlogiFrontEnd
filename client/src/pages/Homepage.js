@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './/styles.css'; // Reuse your existing styles
+import './styles.css'; // Reuse your existing styles
+import API_BASE_URL from '../config'; // Import the API base URL from your config
 
 const Homepage = () => {
     const [carouselBanners, setCarouselBanners] = useState([]);
@@ -15,15 +16,28 @@ const Homepage = () => {
                 const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
                 const [carouselResponse, postsResponse] = await Promise.all([
-                    axios.get('http://localhost:3000/api/carousel-banners', { headers }),
-                    axios.get('http://localhost:3000/api/posts', { headers }),
+                    axios.get(`${API_BASE_URL}/api/CarouselBanner/GetAllCarouselBanners`, { headers }),
+                    axios.get(`${API_BASE_URL}/api/Post/GetAllPosts`, { headers }),
                 ]);
 
-                setCarouselBanners(carouselResponse.data);
-                const postsData = postsResponse.data.slice(0, 3);
-                setPosts(postsData);
-                setLatestPost(postsData[0]);
-                setHighlightPost(postsData[1]);
+                // Filter active carousel banners and sort by displayOrder
+                const activeBanners = carouselResponse.data
+                    .filter(banner => banner.isActive)
+                    .sort((a, b) => a.displayOrder - b.displayOrder);
+                setCarouselBanners(activeBanners);
+
+                // Filter published posts and sort by creation date (assuming a createdAt field)
+                const publishedPosts = postsResponse.data
+                    .filter(post => post.isPublished)
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by most recent
+
+                // Take the top 3 posts for the card grid
+                const topPosts = publishedPosts.slice(0, 3);
+                setPosts(topPosts);
+
+                // Set the latest and highlight posts
+                setLatestPost(topPosts[0] || null);
+                setHighlightPost(topPosts[1] || null);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setCarouselBanners([]);
@@ -79,7 +93,7 @@ const Homepage = () => {
                         <div className="latest-content">
                             <h2 className="latest-title">{latestPost.title}</h2>
                             <p className="latest-description">{latestPost.content.substring(0, 100)}...</p>
-                            <a href="#" className="read-more">Read more</a>
+                            <a href={`/post/${latestPost.postId}`} className="read-more">Read more</a>
                         </div>
                         <div className="latest-image">
                             <img src={latestPost.imageUrl} alt="Latest post" />
@@ -94,7 +108,7 @@ const Homepage = () => {
                         <img src={post.imageUrl} alt={post.title} className="card-image" />
                         <h3 className="card-title">{post.title}</h3>
                         <p className="card-description">{post.content.substring(0, 50)}...</p>
-                        <a href="#" className="read-more">Read more</a>
+                        <a href={`/post/${post.postId}`} className="read-more">Read more</a>
                     </div>
                 ))}
             </section>
@@ -108,7 +122,7 @@ const Homepage = () => {
                         <div className="highlight-content">
                             <h2 className="highlight-title">{highlightPost.title}</h2>
                             <p className="highlight-description">{highlightPost.content.substring(0, 100)}...</p>
-                            <a href="#" className="read-more">Read more</a>
+                            <a href={`/post/${highlightPost.postId}`} className="read-more">Read more</a>
                         </div>
                     </>
                 )}
