@@ -57,7 +57,7 @@ const Carousel = memo(({ banners }) => {
                                     <>
                                         {banner.title.split('coffee')[0]} coffee
                                         <img
-                                            src="/coffee-cup-icon.svg"
+                                            src="/instagram-fill-10.svg"
                                             alt="Coffee cup"
                                             className="coffee-icon"
                                             aria-hidden="true"
@@ -231,7 +231,7 @@ const Homepage = () => {
             <main role="main">
                 {carouselBanners.length > 0 && (
                     <>
-                        <h2 className="section-title section-title--banners">Featured Banners</h2>
+                        <h2 className="section-title section-title--banners">Welcome</h2>
                         <Carousel banners={carouselBanners} />
                     </>
                 )}
