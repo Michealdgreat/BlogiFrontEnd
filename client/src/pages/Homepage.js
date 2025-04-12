@@ -44,10 +44,11 @@ const Carousel = memo(({ banners }) => {
                                     ? banner.imageUrl
                                     : `${API_BASE_URL}${banner.imageUrl}`
                             }
-                            alt={banner.title}
+                            alt=""
                             className="carousel-background"
                             loading="lazy"
-                            onError={e => { e.target.src = '/placeholder.jpg'; }}
+                            onError={e => { e.target.src = 'https://via.placeholder.com/1200x400'; }}
+                            aria-hidden="true"
                         />
                         <div className="hero-content">
                             <h2 className="hero-title">
