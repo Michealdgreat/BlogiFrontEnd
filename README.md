@@ -41,6 +41,9 @@ Core libraries and tools include **React Router**, **Axios**, and **React Slick*
 ### Category Page
 <img src="Documentation/blogiscreenshot02.png" alt="Category"/>
 
+### Post Page
+<img src="Documentation/blogiscreenshot04.png" alt="Post page"/>
+
 ### Admin content management area
 <img src="Documentation/blogiscreenshot03.png" alt="Admin"/>
 
