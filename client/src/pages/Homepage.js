@@ -182,7 +182,7 @@ const Homepage = () => {
                 const publishedPosts = postsResponse.data
                     .filter(post => post.isPublished)
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                setPosts(publishedPosts.slice(0, 3));
+                setPosts(publishedPosts.slice(0, 6));
                 setFeaturedPost(publishedPosts[0] || null);
 
                 const currentDate = new Date();
