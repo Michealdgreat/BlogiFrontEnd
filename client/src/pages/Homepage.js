@@ -107,49 +107,43 @@ const BannerAd = memo(({ ad }) => (
 ));
 
 // Post Card Component
-const PostCard = memo(({ post }) => {
-    console.log('PostCard postId:', post.postId); // Debug log
-    return (
-        <article className="card">
-            <div className="card-image">
-                <img src={post.imageUrl} alt={post.title} loading="lazy" />
+const PostCard = memo(({ post }) => (
+    <article className="card">
+        <div className="card-image">
+            <img src={post.imageUrl} alt={post.title} loading="lazy" />
+        </div>
+        <div className="card-content">
+            <h3 className="card-title">{post.title}</h3>
+            <p className="card-text">{post.content.substring(0, 80)}...</p>
+            <div className="card-meta">
+                <time dateTime={post.createdAt}>
+                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </time>
+                <Link to={`/post/${post.postId}`} className="read-more">Read More</Link>
             </div>
-            <div className="card-content">
-                <h3 className="card-title">{post.title}</h3>
-                <p className="card-text">{post.content.substring(0, 80)}...</p>
-                <div className="card-meta">
-                    <time dateTime={post.createdAt}>
-                        {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </time>
-                    <Link to={`/post/${post.postId}`} className="read-more">Read More</Link>
-                </div>
-            </div>
-        </article>
-    );
-});
+        </div>
+    </article>
+));
 
 // Featured Post Component
-const FeaturedPost = memo(({ post }) => {
-    console.log('FeaturedPost postId:', post.postId); // Debug log
-    return (
-        <section className="highlight-section" aria-label="Featured Article">
-            <div className="highlight-image">
-                <img src={post.imageUrl} alt={post.title} loading="lazy" />
+const FeaturedPost = memo(({ post }) => (
+    <section className="highlight-section" aria-label="Featured Article">
+        <div className="highlight-image">
+            <img src={post.imageUrl} alt={post.title} loading="lazy" />
+        </div>
+        <div className="highlight-content">
+            <span className="highlight-label">Featured Article</span>
+            <h2 className="highlight-title">{post.title}</h2>
+            <p className="highlight-text">{post.content.substring(0, 120)}...</p>
+            <div className="highlight-meta">
+                <time dateTime={post.createdAt}>
+                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </time>
+                <Link to={`/post/${post.postId}`} className="highlight-cta">Read Full Story</Link>
             </div>
-            <div className="highlight-content">
-                <span className="highlight-label">Featured Article</span>
-                <h2 className="highlight-title">{post.title}</h2>
-                <p className="highlight-text">{post.content.substring(0, 120)}...</p>
-                <div className="highlight-meta">
-                    <time dateTime={post.createdAt}>
-                        {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </time>
-                    <Link to={`/post/${post.postId}`} className="highlight-cta">Read Full Story</Link>
-                </div>
-            </div>
-        </section>
-    );
-});
+        </div>
+    </section>
+));
 
 // Main Homepage Component
 const Homepage = () => {
@@ -216,7 +210,7 @@ const Homepage = () => {
     return (
         <div className="container">
             <nav className="navigation">
-                <div className="logo">MyBlogi</div>
+                <Link to="/" className="logo">MyBlogi</Link>
                 <div className="search-bar">
                     <img src="/search-line-10.svg" alt="Search icon" />
                     <div className="search-text">Search...</div>
@@ -224,6 +218,7 @@ const Homepage = () => {
                 <div className="nav-links">
                     <Link to="/" className="nav-item active">Home</Link>
                     <Link to="/articles" className="nav-item">Articles</Link>
+                    <Link to="/login" className="nav-item">Admin</Link>
                     <div className="social-icons">
                         {socialMediaLinks.map(link => (
                             <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer">
@@ -262,7 +257,6 @@ const Homepage = () => {
                         <FeaturedPost post={featuredPost} />
                     </>
                 )}
-
             </main>
             <footer className="footer">
                 <div className="footer-info">

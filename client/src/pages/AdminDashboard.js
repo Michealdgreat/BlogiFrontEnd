@@ -13,7 +13,7 @@ const AdminDashboard = () => {
     const [posts, setPosts] = useState([]);
     const [roles, setRoles] = useState([]);
     const [users, setUsers] = useState([]);
-    const [editingEntity, setEditingEntity] = useState(null); // For handling edit forms
+    const [editingEntity, setEditingEntity] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -93,6 +93,9 @@ const AdminDashboard = () => {
     };
 
     const handleDeleteBannerAd = async (bannerId) => {
+        const confirmed = window.confirm('Are you sure you want to delete this banner ad? This action cannot be undone.');
+        if (!confirmed) return;
+
         const token = localStorage.getItem('jwt');
         try {
             await axios.delete(`${API_BASE_URL}/api/BannerAd/DeleteBannerAd`, {
@@ -143,6 +146,9 @@ const AdminDashboard = () => {
     };
 
     const handleDeleteCarouselBanner = async (carouselId) => {
+        const confirmed = window.confirm('Are you sure you want to delete this carousel banner? This action cannot be undone.');
+        if (!confirmed) return;
+
         const token = localStorage.getItem('jwt');
         try {
             await axios.delete(`${API_BASE_URL}/api/CarouselBanner/DeleteCarouselBanner`, {
@@ -189,6 +195,9 @@ const AdminDashboard = () => {
     };
 
     const handleDeleteCategory = async (categoryId) => {
+        const confirmed = window.confirm('Are you sure you want to delete this category? This action cannot be undone.');
+        if (!confirmed) return;
+
         const token = localStorage.getItem('jwt');
         try {
             await axios.delete(`${API_BASE_URL}/api/Category/DeleteCategory`, {
@@ -237,6 +246,9 @@ const AdminDashboard = () => {
     };
 
     const handleDeletePost = async (postId) => {
+        const confirmed = window.confirm('Are you sure you want to delete this post? This action cannot be undone.');
+        if (!confirmed) return;
+
         const token = localStorage.getItem('jwt');
         try {
             await axios.delete(`${API_BASE_URL}/api/Post/DeletePost`, {
@@ -316,6 +328,9 @@ const AdminDashboard = () => {
     };
 
     const handleDeleteUser = async (userId) => {
+        const confirmed = window.confirm('Are you sure you want to delete this user? This action cannot be undone.');
+        if (!confirmed) return;
+
         const token = localStorage.getItem('jwt');
         try {
             await axios.delete(`${API_BASE_URL}/api/User/DeleteUser`, {
@@ -332,6 +347,11 @@ const AdminDashboard = () => {
         <div className="container">
             <header className="admin-header">
                 <h1 className="admin-title">Admin Dashboard</h1>
+                <div className="user-info">
+                    <a href="/" className="logout-link">
+                        Goto Blog Homepage
+                    </a>
+                </div>
                 <div className="user-info">
                     Welcome, {localStorage.getItem('userName')} | Role: Admin
                     <a href="/login" className="logout-link" onClick={() => localStorage.removeItem('jwt')}>
@@ -883,7 +903,7 @@ const AdminDashboard = () => {
                                             >
                                                 Edit
                                             </button>
-                                            {/* Note: No delete endpoint for roles in the API */}
+                                            {/* No delete endpoint for roles */}
                                         </div>
                                     </td>
                                 </tr>

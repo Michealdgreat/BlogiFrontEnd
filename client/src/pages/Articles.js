@@ -16,26 +16,23 @@ const SkeletonLoader = () => (
 );
 
 // Reuse the PostCard component from Homepage
-const PostCard = ({ post }) => {
-    console.log('PostCard postId (Articles):', post.postId); // Debug log
-    return (
-        <article className="card">
-            <div className="card-image">
-                <img src={post.imageUrl} alt={post.title} loading="lazy" />
+const PostCard = ({ post }) => (
+    <article className="card">
+        <div className="card-image">
+            <img src={post.imageUrl} alt={post.title} loading="lazy" />
+        </div>
+        <div className="card-content">
+            <h3 className="card-title">{post.title}</h3>
+            <p className="card-text">{post.content.substring(0, 80)}...</p>
+            <div className="card-meta">
+                <time dateTime={post.createdAt}>
+                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </time>
+                <Link to={`/post/${post.postId}`} className="read-more">Read More</Link>
             </div>
-            <div className="card-content">
-                <h3 className="card-title">{post.title}</h3>
-                <p className="card-text">{post.content.substring(0, 80)}...</p>
-                <div className="card-meta">
-                    <time dateTime={post.createdAt}>
-                        {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </time>
-                    <Link to={`/post/${post.postId}`} className="read-more">Read More</Link>
-                </div>
-            </div>
-        </article>
-    );
-};
+        </div>
+    </article>
+);
 
 const Articles = () => {
     const [posts, setPosts] = useState([]);
@@ -81,7 +78,7 @@ const Articles = () => {
         <div className="container">
             {/* Navigation (same as Homepage) */}
             <nav className="navigation">
-                <div className="logo">MyBlogi</div>
+                <Link to="/" className="logo">MyBlogi</Link>
                 <div className="search-bar">
                     <img src="/search-line-10.svg" alt="Search icon" />
                     <div className="search-text">Search...</div>
@@ -89,6 +86,7 @@ const Articles = () => {
                 <div className="nav-links">
                     <Link to="/" className="nav-item">Home</Link>
                     <Link to="/articles" className="nav-item active">Articles</Link>
+                    <Link to="/login" className="nav-item">Admin</Link>
                     <div className="social-icons">
                         {socialMediaLinks.map(link => (
                             <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer">
