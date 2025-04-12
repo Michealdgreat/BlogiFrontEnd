@@ -1,4 +1,4 @@
-# MyBlogi Frontend
+# Blogi Frontend
 
 This is the React frontend for the **MyBlogi** blogging platform. This is a web application that allows users to browse articles, view featured content, and manage blog content through an admin dashboard. The frontend communicates with a .NET backend API to manage posts, ads, banners, categories, roles, and users.
 
