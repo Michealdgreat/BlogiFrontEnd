@@ -20,7 +20,7 @@ const SkeletonLoader = () => (
     </div>
 );
 
-// Carousel Component (remove the title from here)
+// Carousel Component
 const Carousel = memo(({ banners }) => {
     const settings = {
         dots: true,
@@ -77,7 +77,7 @@ const Carousel = memo(({ banners }) => {
     );
 });
 
-// Banner Ad Component (remove the title from here)
+// Banner Ad Component
 const BannerAd = memo(({ ad }) => (
     <section className="card-latest" aria-label="Latest Promotion">
         <div className="card-latest-content">
@@ -125,7 +125,7 @@ const PostCard = memo(({ post }) => (
     </article>
 ));
 
-// Featured Post Component (remove the title from here)
+// Featured Post Component
 const FeaturedPost = memo(({ post }) => (
     <section className="highlight-section" aria-label="Featured Article">
         <div className="highlight-image">
@@ -241,12 +241,14 @@ const Homepage = () => {
                     </>
                 )}
                 {posts.length > 0 && (
-                    <section className="card-grid" aria-label="Recent Articles">
+                    <>
                         <h2 className="section-title section-title--articles">Recent Articles</h2>
-                        {posts.map(post => (
-                            <PostCard key={post.postId} post={post} />
-                        ))}
-                    </section>
+                        <section className="card-grid" aria-label="Recent Articles">
+                            {posts.map(post => (
+                                <PostCard key={post.postId} post={post} />
+                            ))}
+                        </section>
+                    </>
                 )}
                 {featuredPost && (
                     <>
