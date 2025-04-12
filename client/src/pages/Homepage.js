@@ -1,4 +1,5 @@
 import React, { useEffect, useState, memo } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -19,7 +20,7 @@ const SkeletonLoader = () => (
     </div>
 );
 
-// Carousel Component
+// Carousel Component (remove the title from here)
 const Carousel = memo(({ banners }) => {
     const settings = {
         dots: true,
@@ -34,7 +35,7 @@ const Carousel = memo(({ banners }) => {
     };
 
     return (
-        <section className="head-section" aria-label="Featured banners">
+        <section className="head-section" aria-label="Featured Banners">
             <Slider {...settings}>
                 {banners.map(banner => (
                     <div key={banner.carouselId} className="carousel-slide">
@@ -76,9 +77,9 @@ const Carousel = memo(({ banners }) => {
     );
 });
 
-// Banner Ad Component
+// Banner Ad Component (remove the title from here)
 const BannerAd = memo(({ ad }) => (
-    <section className="card-latest" aria-label="Latest promotion">
+    <section className="card-latest" aria-label="Latest Promotion">
         <div className="card-latest-content">
             <h2 className="card-latest-title">{ad.title}</h2>
             <p className="card-latest-text">{ad.description}</p>
@@ -124,9 +125,9 @@ const PostCard = memo(({ post }) => (
     </article>
 ));
 
-// Enhanced Featured Post Component
+// Featured Post Component (remove the title from here)
 const FeaturedPost = memo(({ post }) => (
-    <section className="highlight-section" aria-label="Featured article">
+    <section className="highlight-section" aria-label="Featured Article">
         <div className="highlight-image">
             <img src={post.imageUrl} alt={post.title} loading="lazy" />
         </div>
@@ -215,8 +216,8 @@ const Homepage = () => {
                     <div className="search-text">Search...</div>
                 </div>
                 <div className="nav-links">
-                    <div className="nav-item">Home</div>
-                    <div className="nav-item">Articles</div>
+                    <Link to="/" className="nav-item active">Home</Link>
+                    <Link to="/articles" className="nav-item">Articles</Link>
                     <div className="social-icons">
                         {socialMediaLinks.map(link => (
                             <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer">
@@ -227,22 +228,33 @@ const Homepage = () => {
                 </div>
             </nav>
             <main role="main">
-                {carouselBanners.length > 0 && <Carousel banners={carouselBanners} />}
-                {bannerAds.length > 0 && <BannerAd ad={bannerAds[0]} />}
+                {carouselBanners.length > 0 && (
+                    <>
+                        <h2 className="section-title section-title--banners">Featured Banners</h2>
+                        <Carousel banners={carouselBanners} />
+                    </>
+                )}
+                {bannerAds.length > 0 && (
+                    <>
+                        <h2 className="section-title section-title--promotion">Latest Promotion</h2>
+                        <BannerAd ad={bannerAds[0]} />
+                    </>
+                )}
                 {posts.length > 0 && (
-                    <section className="card-grid" aria-label="Recent articles">
+                    <section className="card-grid" aria-label="Recent Articles">
+                        <h2 className="section-title section-title--articles">Recent Articles</h2>
                         {posts.map(post => (
                             <PostCard key={post.postId} post={post} />
                         ))}
                     </section>
                 )}
-                {featuredPost && <FeaturedPost post={featuredPost} />}
-                <div className="see-more-container">
-                    <button className="see-more-button" aria-label="Load more content">
-                        See more
-                        <img src="/arrow-down-circle-fill-10.svg" alt="" aria-hidden="true" />
-                    </button>
-                </div>
+                {featuredPost && (
+                    <>
+                        <h2 className="section-title section-title--featured">Featured Article</h2>
+                        <FeaturedPost post={featuredPost} />
+                    </>
+                )}
+
             </main>
             <footer className="footer">
                 <div className="footer-info">
