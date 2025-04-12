@@ -1,4 +1,4 @@
-/* Original Reset and Base Styles */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -109,7 +109,7 @@ img {
 
 .carousel-slide {
   position: relative;
-  height: 400px; /* Use fixed height instead of max-height for consistency */
+  height: 400px;
 }
 
 .carousel-background {
@@ -119,7 +119,7 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 1; /* Ensure the image is behind the text */
+  z-index: 1;
 }
 
 .hero-content {
@@ -127,12 +127,12 @@ img {
   bottom: 24px;
   left: 24px;
   right: 24px;
-  background: rgba(0, 0, 0, 0.5); /* Increased opacity for better contrast */
+  background: rgba(0, 0, 0, 0.5);
   color: #ffffff;
   padding: 16px;
   border-radius: 8px;
   text-align: left;
-  z-index: 2; /* Ensure the text is above the image */
+  z-index: 2;
 }
 
 .hero-title {
@@ -154,7 +154,7 @@ img {
 
 .head-section .slick-dots {
   bottom: 16px;
-  z-index: 3; /* Ensure dots are above the image and text */
+  z-index: 3;
 }
 
 .head-section .slick-dots li button:before {
@@ -463,7 +463,7 @@ img {
   }
 
   .carousel-slide {
-    height: 300px; /* Adjust height for smaller screens */
+    height: 300px;
     aspect-ratio: 4 / 3;
   }
 
@@ -477,7 +477,7 @@ img {
 
 @media (max-width: 480px) {
   .carousel-slide {
-    height: 250px; /* Further adjust height for very small screens */
+    height: 250px;
   }
 
   .hero-title {
@@ -515,10 +515,10 @@ img {
 /* Active Navigation Item */
 .nav-item.active {
   font-weight: 700;
-  color: #e67e22; /* Match your brand color */
+  color: #e67e22;
 }
 
-/* Ensure navigation links are styled consistently */
+/*  navigation links style */
 .nav-item {
   font-size: 16px;
   cursor: pointer;
@@ -573,9 +573,9 @@ img {
   font-size: 2rem;
   font-weight: 700;
   color: #2d3748;
-  margin: 40px 0 24px; /* Increased top margin for more separation */
+  margin: 40px 0 24px;
   text-align: left;
-  padding-bottom: 8px; /* Space for the underline */
+  padding-bottom: 8px;
 }
 
 .section-title::after {
@@ -583,30 +583,30 @@ img {
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 60px; /* Length of the underline */
-  height: 3px; /* Thickness of the underline */
-  background-color: #e67e22; /* Default color */
+  width: 60px;
+  height: 3px;
+  background-color: #e67e22;
 }
 
 /* Distinct styles for each section title */
 .section-title--banners::after {
-  background-color: #e67e22; /* Orange for Featured Banners */
+  background-color: #e67e22;
 }
 
 .section-title--promotion::after {
-  background-color: #3498db; /* Blue for Latest Promotion */
+  background-color: #3498db;
 }
 
 .section-title--articles::after {
-  background-color: #2ecc71; /* Green for Articles */
+  background-color: #2ecc71;
 }
 
 .section-title--featured::after {
-  background-color: #e74c3c; /* Red for Featured Article */
+  background-color: #e74c3c;
 }
 
 .section-title--explore::after {
-  background-color: #9b59b6; /* Purple for Explore More */
+  background-color: #9b59b6;
 }
 
 /* Adjust section title for smaller screens */
